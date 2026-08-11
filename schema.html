@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="schema">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 620" width="100%" height="100%" style="background-color: #0f172a; font-family: system-ui, -apple-system, sans-serif;">
+  <defs>
+    <!-- Card Shadow -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+
+    <!-- Marker: Crow's Foot / Arrow -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+    
+    <marker id="dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+      <circle cx="5" cy="5" r="3" fill="#38bdf8"/>
+    </marker>
+  </defs>
+
+  <style>
+    .table-card { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 8px; filter: url(#shadow); }
+    .header-bg { fill: #0f172a; rx: 8px; }
+    .header-title { fill: #38bdf8; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+    .field-text { fill: #e2e8f0; font-size: 11px; font-weight: 400; }
+    .badge-pk { fill: #f59e0b; font-size: 9px; font-weight: 800; }
+    .badge-fk { fill: #818cf8; font-size: 9px; font-weight: 800; }
+    .connector { stroke: #64748b; stroke-width: 1.5; fill: none; stroke-dasharray: 4 4; }
+    .connector-solid { stroke: #38bdf8; stroke-width: 1.5; fill: none; }
+  </style>
+
+  <!-- ================= LINES / RELATIONSHIPS ================= -->
+  <!-- Department -> Program -->
+  <path d="M 130 110 L 130 150" class="connector-solid" marker-end="url(#arrow)" />
+  
+  <!-- Department -> Instructor -->
+  <path d="M 210 70 L 260 70" class="connector-solid" marker-end="url(#arrow)" />
+  
+  <!-- Program -> Course -->
+  <path d="M 210 200 L 260 200" class="connector-solid" marker-end="url(#arrow)" />
+  
+  <!-- Program -> Student Group -->
+  <path d="M 130 250 L 130 290" class="connector-solid" marker-end="url(#arrow)" />
+  
+  <!-- Instructor -> Availability -->
+  <path d="M 440 70 L 500 70" class="connector-solid" marker-end="url(#arrow)" />
+  
+  <!-- TimeSlot -> Availability -->
+  <path d="M 750 70 L 700 70" class="connector-solid" marker-end="url(#arrow)" />
+  
+  <!-- Course -> Timetable Entry -->
+  <path d="M 350 250 L 350 370 L 480 370" class="connector" marker-start="url(#dot)" marker-end="url(#arrow)" />
+  
+  <!-- Student Group -> Timetable Entry -->
+  <path d="M 210 350 L 480 350" class="connector" marker-start="url(#dot)" marker-end="url(#arrow)" />
+  
+  <!-- Instructor -> Timetable Entry -->
+  <path d="M 350 110 L 350 390 L 480 390" class="connector" marker-start="url(#dot)" marker-end="url(#arrow)" />
+  
+  <!-- TimeSlot -> Timetable Entry -->
+  <path d="M 840 150 L 840 430 L 710 430" class="connector" marker-start="url(#dot)" marker-end="url(#arrow)" />
+  
+  <!-- Venue -> Timetable Entry -->
+  <path d="M 750 330 L 710 330" class="connector" marker-start="url(#dot)" marker-end="url(#arrow)" />
+
+
+  <!-- ================= TABLES ================= -->
+
+  <!-- 1. DEPARTMENT -->
+  <g transform="translate(50, 30)">
+    <rect width="160" height="80" class="table-card" />
+    <path d="M 0 0 h 160 v 26 h -160 z" class="header-bg" />
+    <text x="12" y="17" class="header-title">DEPARTMENT</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">dept_id</text>
+    <text x="32" y="64" class="field-text">dept_name</text>
+  </g>
+
+  <!-- 2. PROGRAM -->
+  <g transform="translate(50, 150)">
+    <rect width="160" height="100" class="table-card" />
+    <path d="M 0 0 h 160 v 26 h -160 z" class="header-bg" />
+    <text x="12" y="17" class="header-title">PROGRAM</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">program_id</text>
+    <text x="32" y="64" class="field-text">program_name</text>
+    <text x="12" y="84" class="badge-fk">FK</text>
+    <text x="32" y="84" class="field-text">dept_id</text>
+  </g>
+
+  <!-- 3. STUDENT_GROUP -->
+  <g transform="translate(50, 290)">
+    <rect width="160" height="120" class="table-card" />
+    <path d="M 0 0 h 160 v 26 h -160 z" class="header-bg" />
+    <text x="12" y="17" class="header-title">STUDENT_GROUP</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">group_id</text>
+    <text x="32" y="64" class="field-text">group_name</text>
+    <text x="32" y="84" class="field-text">student_count</text>
+    <text x="12" y="104" class="badge-fk">FK</text>
+    <text x="32" y="104" class="field-text">program_id</text>
+  </g>
+
+  <!-- 4. INSTRUCTOR -->
+  <g transform="translate(260, 30)">
+    <rect width="180" height="100" class="table-card" />
+    <path d="M 0 0 h 180 v 26 h -180 z" class="header-bg" />
+    <text x="12" y="17" class="header-title">INSTRUCTOR</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">instr_id</text>
+    <text x="32" y="64" class="field-text">instr_name</text>
+    <text x="12" y="84" class="badge-fk">FK</text>
+    <text x="32" y="84" class="field-text">dept_id</text>
+  </g>
+
+  <!-- 5. COURSE -->
+  <g transform="translate(260, 150)">
+    <rect width="180" height="120" class="table-card" />
+    <path d="M 0 0 h 180 v 26 h -180 z" class="header-bg" />
+    <text x="12" y="17" class="header-title">COURSE</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">course_code</text>
+    <text x="32" y="64" class="field-text">course_name</text>
+    <text x="32" y="84" class="field-text">hours_per_week</text>
+    <text x="12" y="104" class="badge-fk">FK</text>
+    <text x="32" y="104" class="field-text">program_id</text>
+    <!-- <text x="12" y="124" class="badge-fk">FK</text>
+    <text x="32" y="124" class="field-text">group_id</text> -->
+  </g>
+
+  <!-- 6. INSTRUCTOR_AVAILABILITY -->
+  <g transform="translate(500, 30)">
+    <rect width="200" height="120" class="table-card" />
+    <path d="M 0 0 h 200 v 26 h -200 z" class="header-bg" />
+    <text x="12" y="17" class="header-title" fill="#a7f3d0">INSTRUCTOR_AVAILABILITY</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">avail_id</text>
+    <text x="12" y="64" class="badge-fk">FK</text>
+    <text x="32" y="64" class="field-text">instr_id</text>
+    <text x="12" y="84" class="badge-fk">FK</text>
+    <text x="32" y="84" class="field-text">slot_id</text>
+    <text x="32" y="104" class="field-text">is_available (Boolean)</text>
+  </g>
+
+  <!-- 7. TIME_SLOT -->
+  <g transform="translate(750, 30)">
+    <rect width="180" height="120" class="table-card" />
+    <path d="M 0 0 h 180 v 26 h -180 z" class="header-bg" />
+    <text x="12" y="17" class="header-title">TIME_SLOT</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">slot_id</text>
+    <text x="32" y="64" class="field-text">day_of_week</text>
+    <text x="32" y="84" class="field-text">start_time</text>
+    <text x="32" y="104" class="field-text">end_time</text>
+  </g>
+
+  <!-- 8. VENUE -->
+  <g transform="translate(750, 270)">
+    <rect width="180" height="120" class="table-card" />
+    <path d="M 0 0 h 180 v 26 h -180 z" class="header-bg" />
+    <text x="12" y="17" class="header-title">VENUE</text>
+    <text x="12" y="44" class="badge-pk">PK</text>
+    <text x="32" y="44" class="field-text">room_id</text>
+    <text x="32" y="64" class="field-text">room_name</text>
+    <text x="32" y="84" class="field-text">capacity</text>
+    <text x="32" y="104" class="field-text">room_type</text>
+  </g>
+
+  <!-- 9. TIMETABLE_ENTRY (CENTRAL JUNCTION) -->
+  <g transform="translate(480, 270)">
+    <rect width="230" height="180" class="table-card" stroke="#38bdf8" stroke-width="2" />
+    <path d="M 0 0 h 230 v 28 h -230 z" fill="#0284c7" />
+    <text x="12" y="18" fill="#ffffff" font-size="13" font-weight="800" letter-spacing="0.5px">TIMETABLE_ENTRY</text>
+    <text x="12" y="46" class="badge-pk">PK</text>
+    <text x="35" y="46" class="field-text" font-weight="bold">entry_id</text>
+    <text x="12" y="68" class="badge-fk">FK</text>
+    <text x="35" y="68" class="field-text">course_code</text>
+    <text x="12" y="88" class="badge-fk">FK</text>
+    <text x="35" y="88" class="field-text">instr_id</text>
+    <text x="12" y="108" class="badge-fk">FK</text>
+    <text x="35" y="108" class="field-text">room_id</text>
+    <text x="12" y="128" class="badge-fk">FK</text>
+    <text x="35" y="128" class="field-text">group_id</text>
+    <text x="12" y="148" class="badge-fk">FK</text>
+    <text x="35" y="148" class="field-text">slot_id</text>
+    <text x="35" y="168" class="field-text" fill="#94a3b8">academic_term</text>
+  </g>
+
+</svg>
+
+    </div>
+</body>
+</html>

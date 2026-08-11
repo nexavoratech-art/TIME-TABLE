@@ -1,0 +1,47 @@
+command to install laravel UI package
+--composer require laravel/ui --dev
+
+command to Generate Bootstrap scaffolding
+--php artisan ui Bootstrap
+
+command to install node dependencies and bootstrap assets
+--npm install
+
+command to launch local backend PHP servers
+--php artisan server
+
+command to hot-reload bootstrap CSS/JS changes
+--npm run dev
+
+command to create a migration file
+--php artisan make:migration create_tableName_table
+
+command to run database migrations
+--php artisan migrate
+
+command to check the configured database connection
+--php artisan db:show
+
+command to check migration status
+--php artisan migrate:status
+
+command to start the backend server
+--php artisan serve
+
+command for the bootstrap styles in the frontend(vite)
+--npm run dev
+
+command generates a secure random key and automatically updates the APP_KEY= value in your .env file
+--php artisan key:generate
+
+Command to check listening ports
+--Get-NetTCPConnection | Where-Object { $_.State -eq "Listen" }
+-- netstat -ano | findstr LISTENING
+
+Command to check which process uses the port
+--tasklist /FI "PID eq <PID>"
+--Get-Process -Id (Get-NetTCPConnection | Where-Object { $_.State -eq "Listen" }).OwningProcess
+
+one‑liner commands that directly show listening ports with their owning processes, so you don’t have to cross‑reference PIDs manually
+--Get-NetTCPConnection -State Listen | Select-Object LocalPort, OwningProcess, @{Name="ProcessName";Expression={(Get-Process -Id $_.OwningProcess).ProcessName}}
+

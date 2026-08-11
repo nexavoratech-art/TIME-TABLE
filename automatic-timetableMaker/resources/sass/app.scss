@@ -1,0 +1,70 @@
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
+
+/* Modern Subtle SVG Grid Background */
+body {
+    background-color: #f8fafc;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%230284c7' fill-opacity='0.04'%3E%3Cpath fill-rule='evenodd' d='M0 0h80v80H0V0zm1 1h78v78H1V1zm10 10h58v58H11V11zm1 1h56v56H12V12z'/%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
+}
+
+/* Button & Card Hover Animations */
+.btn, .card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Navigation Link Hover & Active State Indicator */
+.navbar .nav-link {
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.navbar .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #38bdf8;
+    transition: all 0.25s ease;
+    transform: translateX(-50%);
+}
+
+.navbar .nav-link:hover::after,
+.navbar .nav-link.active::after {
+    width: 85%;
+}
+
+.navbar .nav-link.active {
+    color: #38bdf8 !important;
+    font-weight: 600;
+}
+
+/* Blurred Modal Backdrop */
+.modal-backdrop.show {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background-color: rgba(15, 23, 42, 0.5);
+}
+
+/* Toast Notification Styling */
+.toast-container {
+    z-index: 1090;
+}
