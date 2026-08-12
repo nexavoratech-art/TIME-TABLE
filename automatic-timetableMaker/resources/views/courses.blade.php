@@ -17,7 +17,10 @@
         </div>
         <div class="col-md-3">
             <select class="form-select" name="program_id">
-                <option>Select Program...</option>
+                <option value="">Select Program...</option>
+                @foreach (\App\Models\Program::all() as $program)
+                    <option value="{{ $program->program_id }}">{{ $program->program_name }}</option>
+                @endforeach
             </select>
         </div>
         <div class="col-12">

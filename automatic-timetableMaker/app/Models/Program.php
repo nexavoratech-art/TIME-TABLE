@@ -14,7 +14,7 @@ class Program extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'program_name',
         'dept_id',
+        'program_name',
     ];
 }
