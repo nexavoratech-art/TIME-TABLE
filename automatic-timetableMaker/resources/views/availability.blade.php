@@ -10,8 +10,10 @@
                 @csrf
                 <div class="mb-3">
                     <select class="form-select" name="day_of_week">
+                        <option value="">Select Day</option>
                         <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
                         <option>Thursday</option><option>Friday</option>
+                        <option>Saturday</option><option>Sunday</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -24,22 +26,77 @@
             </form>
         </div>
     </div>
+
     <div class="col-md-8">
         <div class="card border-0 shadow-sm p-3">
             <h5 class="card-title mb-3"><i class="bi bi-calendar-week text-success me-2"></i>Instructor Matrix</h5>
-            <select class="form-select mb-3">
-                <option>Select Instructor to set matrix...</option>
-            </select>
-            <div class="table-responsive">
-                <table class="table table-bordered text-center small">
-                    <thead class="table-dark">
-                        <tr><th>Day</th><th>08:00 - 09:00</th><th>09:00 - 10:00</th><th>10:00 - 11:00</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Monday</td><td><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Available</span></td><td><span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Busy</span></td><td><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Available</span></td></tr>
-                    </tbody>
-                </table>
-            </div>
+
+            <form action="{{ route('availability') }}" method="GET">
+                <div class="mb-3">
+                    <select class="form-select" name="instr_id" id="instr_id" onchange="this.form.submit()">
+                        <option value="">Select Instructor to set matrix...</option>
+                        @foreach($instructors as $instructor)
+                            <option value="{{ $instructor->instr_id }}" {{ old('instr_id', $selectedInstructorId) == $instructor->instr_id ? 'selected' : '' }}>
+                                {{ $instructor->instr_id }} - {{ $instructor->instr_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </form>
+
+            @if($selectedInstructorId)
+                <form action="{{ route('availability.save') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="instr_id" value="{{ $selectedInstructorId }}">
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center small align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Day</th>
+                                    @foreach($timeSlots as $slot)
+                                        <th>{{ \Carbon\Carbon::parse($slot->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($slot->end_time)->format('H:i') }}</th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as $day)
+                                    <tr>
+                                        <td><strong>{{ $day }}</strong></td>
+                                        @foreach($timeSlots as $slot)
+                                            @if($slot->day_of_week === $day)
+                                                @php
+                                                    $slotId = $slot->slot_id;
+                                                    $isAvailable = isset($selectedAvailability[$slotId]) ? (bool) $selectedAvailability[$slotId] : false;
+                                                @endphp
+                                                <td>
+                                                    <div class="form-check d-flex justify-content-center">
+                                                        <input
+                                                            class="form-check-input"
+                                                            type="checkbox"
+                                                            name="slot_ids[]"
+                                                            value="{{ $slotId }}"
+                                                            {{ $isAvailable ? 'checked' : '' }}
+                                                            id="slot_{{ $slotId }}">
+                                                    </div>
+                                                </td>
+                                            @else
+                                                <td class="bg-light text-muted">-</td>
+                                            @endif
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i>Save Instructor Availability
+                        </button>
+                    </div>
+                </form>
+            @endif
         </div>
     </div>
 </div>

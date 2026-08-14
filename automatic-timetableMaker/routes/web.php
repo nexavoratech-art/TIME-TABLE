@@ -18,8 +18,9 @@ Route::get('/courses', function () { return view('courses'); })->name('courses')
 Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
 Route::get('/instructors', function () { return view('instructors'); })->name('instructors');
 Route::post('/instructors', [InstructorController::class, 'store'])->name('instructors.store');
-Route::get('/availability', function () { return view('availability'); })->name('availability');
+Route::get('/availability', [TimeSlotController::class, 'index'])->name('availability');
 Route::post('/availability', [TimeSlotController::class, 'store'])->name('time-slots.store');
+Route::post('/availability/instructor', [TimeSlotController::class, 'saveInstructorAvailability'])->name('availability.save');
 Route::get('/venues', function () { return view('venues'); })->name('venues');
 Route::post('/venues', [VenueController::class, 'store'])->name('venues.store');
 Route::get('/timetable', function () { return view('timetable'); })->name('timetable');
