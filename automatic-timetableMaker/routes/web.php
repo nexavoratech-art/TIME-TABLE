@@ -11,6 +11,7 @@ use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\StudentGroupController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\TimeSlotController;
+use App\Http\Controllers\TimetableController;
 
 use App\Http\Middleware\AdminMiddleware;
 
@@ -129,9 +130,8 @@ Route::middleware('auth')->group(function () {
     // =========================
     // TIMETABLE
     // =========================
-    Route::get('/timetable', function () {
-        return view('timetable');
-    })->name('timetable');
+    Route::get('/timetable', [TimetableController::class, 'index'])->name('timetable');
+    Route::post('/timetable/generate', [TimetableController::class, 'generate'])->name('timetable.generate');
 
 
     // =================================================
