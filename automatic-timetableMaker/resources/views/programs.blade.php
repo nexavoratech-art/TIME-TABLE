@@ -26,9 +26,9 @@
                     >
                         <option value="">Select Department...</option>
 
-                        @foreach (\App\Models\Department::all() as $department)
+                        @foreach (\App\Models\Department::where('is_active', true)->orderBy('dept_name')->get() as $department)
                             <option value="{{ $department->dept_id }}">
-                                {{ $department->dept_name }}
+                                {{ $department->dept_code }} — {{ $department->dept_name }}
                             </option>
                         @endforeach
                     </select>

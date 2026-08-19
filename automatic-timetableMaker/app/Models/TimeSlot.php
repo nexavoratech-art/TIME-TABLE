@@ -10,7 +10,9 @@ class TimeSlot extends Model
     use HasFactory;
 
     protected $table = 'time_slots';
+
     protected $primaryKey = 'slot_id';
+
     public $timestamps = false;
 
     protected $fillable = [

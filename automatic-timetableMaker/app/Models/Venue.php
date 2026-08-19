@@ -10,7 +10,9 @@ class Venue extends Model
     use HasFactory;
 
     protected $table = 'venues';
+
     protected $primaryKey = 'room_id';
+
     public $timestamps = false;
 
     protected $fillable = [

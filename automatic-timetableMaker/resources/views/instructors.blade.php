@@ -12,8 +12,8 @@
         <div class="col-md-6">
             <select class="form-select" name="dept_id">
                 <option value="">Select Department...</option>
-                @foreach (\App\Models\Department::all() as $department)
-                    <option value="{{ $department->dept_id }}">{{ $department->dept_name }}</option>
+                @foreach (\App\Models\Department::where('is_active', true)->orderBy('dept_name')->get() as $department)
+                    <option value="{{ $department->dept_id }}">{{ $department->dept_code }} — {{ $department->dept_name }}</option>
                 @endforeach
             </select>
         </div>

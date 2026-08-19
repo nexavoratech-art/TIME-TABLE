@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('department', function (Blueprint $table) {
-        $table->unsignedBigInteger('dept_id')->primary(); // BIGINT UNSIGNED PRIMARY KEY
-        $table->string('dept_name', 150); // VARCHAR(150) NOT NULL
-    });
+            $table->unsignedBigInteger('dept_id')->primary(); // BIGINT UNSIGNED PRIMARY KEY
+            $table->string('dept_name', 150); // VARCHAR(150) NOT NULL
+        });
     }
 
     /**

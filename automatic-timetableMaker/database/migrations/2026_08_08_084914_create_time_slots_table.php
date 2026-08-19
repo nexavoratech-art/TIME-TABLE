@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('time_slots', function (Blueprint $table) {
-            $table->id('slot_id')->primary();
+            $table->id('slot_id');
 
             $table->enum('day_of_week', [
                 'Monday',
@@ -21,7 +21,7 @@ return new class extends Migration
                 'Thursday',
                 'Friday',
                 'Saturday',
-                'Sunday'
+                'Sunday',
             ]);
 
             $table->time('start_time');

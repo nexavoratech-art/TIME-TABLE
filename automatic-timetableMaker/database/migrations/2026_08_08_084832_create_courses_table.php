@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('program_id');
             // $table->id('group_id');
 
-
             $table->foreign('program_id')
                 ->references('program_id')
                 ->on('programs')

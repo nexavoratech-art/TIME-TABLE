@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\Department;
-use App\Models\Program;
 use App\Models\Course;
+use App\Models\Department;
 use App\Models\Instructor;
+use App\Models\Program;
 use App\Models\Venue;
 
 class DashboardController extends Controller
