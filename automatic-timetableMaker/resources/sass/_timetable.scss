@@ -35,3 +35,27 @@
 .empty-schedule p { max-width:480px; }
 @media(max-width:991.98px){ .schedule-toolbar,.toolbar-actions{align-items:stretch;flex-direction:column}.search-box{min-width:0}.summary-metrics{width:100%}.summary-metrics div{flex:1}.generator-hero{padding:1.5rem} }
 @media print { nav,.generator-hero,.readiness-card,.schedule-toolbar .toolbar-actions,.result-summary{display:none!important} body{background:#fff!important}.schedule-panel{border:0;box-shadow:none}.schedule-toolbar{display:block}.container{max-width:100%!important;margin:0!important}.schedule-table{font-size:10pt} }
+
+.course-code { color:#1d4ed8; letter-spacing:.04em; }
+.year-badge { display:inline-block; padding:.35rem .65rem; color:#0f766e; background:#ccfbf1; border-radius:999px; font-size:.78rem; font-weight:800; white-space:nowrap; }
+.auth-shell { display:grid; grid-template-columns:1.05fr .95fr; max-width:1080px; margin:4rem auto; overflow:hidden; border-radius:1.5rem; box-shadow:0 25px 70px rgba(15,23,42,.16); }
+.auth-intro { padding:4rem; color:#fff; background:linear-gradient(145deg,#0f172a,#1d4ed8); }
+.auth-intro h1 { margin:1.25rem 0 1rem; font-weight:800; }
+.auth-features { display:grid; gap:.9rem; margin-top:2rem; }
+.auth-features span { display:flex; gap:.65rem; align-items:center; color:#dbeafe; }
+.auth-card { padding:3.5rem; background:#fff; }
+.auth-card-heading { display:flex; gap:1rem; margin-bottom:2rem; }
+.auth-card-heading h2 { margin:0; font-weight:800; }
+.auth-card-heading p,.auth-note { color:#64748b; }
+.auth-lock { display:grid; place-items:center; flex:0 0 48px; height:48px; color:#2563eb; background:#eff6ff; border-radius:.9rem; font-size:1.3rem; }
+.auth-note { margin:1.5rem 0 0; font-size:.8rem; text-align:center; }
+.admin-heading { display:flex; align-items:end; justify-content:space-between; gap:1rem; }
+.user-total { padding:.6rem .9rem; background:#fff; border:1px solid #e2e8f0; border-radius:.8rem; color:#64748b; }
+.user-account-card { display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; gap:1rem; align-items:center; padding:1rem 1.25rem; background:#fff; border:1px solid #e2e8f0; border-radius:1rem; box-shadow:0 6px 20px rgba(15,23,42,.04); }
+.user-avatar { display:grid; place-items:center; width:44px; height:44px; color:#fff; background:#2563eb; border-radius:50%; font-weight:800; }
+.user-identity strong,.user-identity span,.user-identity small { display:block; overflow:hidden; text-overflow:ellipsis; }
+.user-identity span,.user-identity small { color:#64748b; }
+.role-badge { padding:.35rem .65rem; border-radius:999px; font-size:.75rem; font-weight:800; }
+.role-admin { color:#9f1239; background:#ffe4e6; }.role-user { color:#1d4ed8; background:#dbeafe; }
+.account-actions { display:flex; gap:.4rem; }
+@media(max-width:767.98px){.auth-shell{grid-template-columns:1fr;margin:1rem auto}.auth-intro{padding:2rem}.auth-card{padding:2rem}.user-account-card{grid-template-columns:auto 1fr}.role-badge,.account-actions{grid-column:2}.admin-heading{align-items:start;flex-direction:column}}
