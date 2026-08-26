@@ -23,4 +23,16 @@ class CourseController extends Controller
 
         return back()->with('success', 'Course and teaching assignment created successfully.');
     }
+
+    public function updateAssignment(Request $request, Course $course): RedirectResponse
+    {
+        $validated = $request->validate([
+            'instr_id' => ['required', 'exists:instructors,instr_id'],
+            'year_of_study' => ['required', 'integer', 'min:1', 'max:8'],
+        ]);
+
+        $course->update($validated);
+
+        return back()->with('success', 'Course teaching assignment updated successfully.');
+    }
 }
