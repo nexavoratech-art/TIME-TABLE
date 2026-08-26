@@ -1,34 +1,66 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-        return view('users.index', compact('users'));
+        return view('users.index', ['users' => User::query()->orderBy('name')->get()]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
-            'role' => 'required|in:admin,user',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', Rule::in(['admin', 'user'])],
         ]);
 
-        User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
+        User::query()->create([...$validated, 'password' => Hash::make($validated['password'])]);
+
+        return back()->with('success', 'User account created successfully.');
+    }
+
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'role' => ['required', Rule::in(['admin', 'user'])],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
-        return redirect()->back()->with('success', 'New user successfully created!');
+        if ($user->isAdmin() && $validated['role'] !== 'admin' && User::query()->where('role', 'admin')->count() === 1) {
+            return back()->with('error', 'The system must retain at least one administrator.');
+        }
+
+        $user->fill(['name' => $validated['name'], 'email' => $validated['email'], 'role' => $validated['role']]);
+        if (! empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+        $user->save();
+
+        return back()->with('success', 'User account updated successfully.');
+    }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        if ($request->user()->is($user)) {
+            return back()->with('error', 'You cannot delete the account currently in use.');
+        }
+        if ($user->isAdmin() && User::query()->where('role', 'admin')->count() === 1) {
+            return back()->with('error', 'The system must retain at least one administrator.');
+        }
+        $user->delete();
+
+        return back()->with('success', 'User account deleted successfully.');
     }
 }

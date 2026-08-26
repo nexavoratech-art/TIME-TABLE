@@ -89,6 +89,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/courses', [CourseController::class, 'store'])
         ->name('courses.store');
 
+    Route::put('/courses/{course}/assignment', [CourseController::class, 'updateAssignment'])
+        ->name('courses.assignment.update');
+
 
     // =========================
     // INSTRUCTORS
@@ -144,5 +147,11 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/users', [UserController::class, 'store'])
             ->name('users.store');
+
+        Route::put('/users/{user}', [UserController::class, 'update'])
+            ->name('users.update');
+
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])
+            ->name('users.destroy');
     });
 });

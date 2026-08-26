@@ -1,195 +1,152 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Course;
-use App\Models\Instructor;
+use App\Models\InstructorAvailability;
+use App\Models\StudentGroup;
+use App\Models\TimeSlot;
 use App\Models\Venue;
 
 class TimetableGeneticAlgorithm
 {
     private $courses;
-    private $instructors;
     private $venues;
-    private $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-    private $timeSlots = ['08:00-10:00', '10:00-12:00', '13:00-15:00', '15:00-17:00'];
+    private $timeSlots;
+    private $availability;
+    private $groupSizes;
 
-    private $populationSize;
-    private $generations;
-    private $mutationRate;
-
-    public function __construct($populationSize = 50, $generations = 100, $mutationRate = 0.05)
+    public function __construct(private int $populationSize = 50, private int $generations = 100, private float $mutationRate = 0.05)
     {
-        $this->populationSize = $populationSize;
-        $this->generations = $generations;
-        $this->mutationRate = $mutationRate;
-
-        // Fetch active database records
-        $this->courses = Course::all();
-        $this->instructors = Instructor::all();
-        $this->venues = Venue::all();
+        $this->courses = Course::query()->with('instructor')->get();
+        $this->venues = Venue::query()->get();
+        $this->timeSlots = TimeSlot::query()->orderBy('day_of_week')->orderBy('start_time')->get();
+        $this->availability = InstructorAvailability::query()->where('is_available', true)->get()->groupBy('instr_id');
+        $this->groupSizes = StudentGroup::query()->get()->groupBy(fn ($group) => $group->program_id.'-'.$group->year_of_study)->map(fn ($groups) => $groups->max('student_count'));
     }
 
-    /**
-     * Run the Genetic Algorithm execution loop
-     */
-    public function generate()
+    public function generate(): array
     {
-        if ($this->courses->isEmpty() || $this->venues->isEmpty()) {
-            return ['error' => 'Database lacks sufficient courses or venues to schedule.'];
+        if ($this->courses->isEmpty() || $this->venues->isEmpty() || $this->timeSlots->isEmpty()) {
+            return ['error' => 'Courses, venues, and database time slots are required before generation.'];
+        }
+        if ($this->courses->contains(fn ($course) => ! $course->instr_id || ! $course->year_of_study)) {
+            return ['error' => 'Every course must have an assigned instructor and year of study.'];
         }
 
-        // 1. Initialize Random Population
         $population = [];
         for ($i = 0; $i < $this->populationSize; $i++) {
             $population[] = $this->createRandomChromosome();
         }
 
-        // 2. Evolutionary Loop
-        for ($gen = 0; $gen < $this->generations; $gen++) {
-            // Evaluate Fitness
-            $fitnesses = [];
-            foreach ($population as $index => $chromosome) {
-                $fitnesses[$index] = $this->calculateFitness($chromosome);
+        for ($generation = 1; $generation <= $this->generations; $generation++) {
+            $fitnesses = array_map([$this, 'calculateFitness'], $population);
+            $bestIndex = array_search(max($fitnesses), $fitnesses);
+            if ($fitnesses[$bestIndex] >= 1.0) {
+                return ['schedule' => $population[$bestIndex], 'fitness' => 1.0, 'generation' => $generation];
             }
-
-            // Check if optimal schedule (Fitness = 1.0) is found
-            $maxFitnessIndex = array_search(max($fitnesses), $fitnesses);
-            if ($fitnesses[$maxFitnessIndex] >= 1.0) {
-                return [
-                    'schedule' => $population[$maxFitnessIndex],
-                    'fitness' => $fitnesses[$maxFitnessIndex],
-                    'generation' => $gen + 1
-                ];
+            $next = [$population[$bestIndex]];
+            while (count($next) < $this->populationSize) {
+                $next[] = $this->mutate($this->crossover(
+                    $this->tournamentSelection($population, $fitnesses),
+                    $this->tournamentSelection($population, $fitnesses)
+                ));
             }
-
-            // Build Next Generation
-            $newPopulation = [];
-            
-            // Elitism: Preserve best chromosome
-            $newPopulation[] = $population[$maxFitnessIndex];
-
-            while (count($newPopulation) < $this->populationSize) {
-                $parent1 = $this->tournamentSelection($population, $fitnesses);
-                $parent2 = $this->tournamentSelection($population, $fitnesses);
-                
-                $offspring = $this->crossover($parent1, $parent2);
-                $offspring = $this->mutate($offspring);
-
-                $newPopulation[] = $offspring;
-            }
-
-            $population = $newPopulation;
+            $population = $next;
         }
 
-        // Return best schedule found within generation limit
-        $finalFitnesses = array_map([$this, 'calculateFitness'], $population);
-        $bestIndex = array_search(max($finalFitnesses), $finalFitnesses);
+        $fitnesses = array_map([$this, 'calculateFitness'], $population);
+        $bestIndex = array_search(max($fitnesses), $fitnesses);
 
-        return [
-            'schedule' => $population[$bestIndex],
-            'fitness' => $finalFitnesses[$bestIndex],
-            'generation' => $this->generations
-        ];
+        return ['schedule' => $population[$bestIndex], 'fitness' => $fitnesses[$bestIndex], 'generation' => $this->generations];
     }
 
-    /**
-     * Generate a random schedule chromosome
-     */
-    private function createRandomChromosome()
+    private function createRandomChromosome(): array
     {
         $chromosome = [];
         foreach ($this->courses as $course) {
-            $chromosome[] = [
-                'course_id' => $course->id,
-                'course_name' => $course->course_name,
-                'instructor_id' => $course->instructor_id ?? $this->instructors->random()->id,
-                'venue_id' => $this->venues->random()->id,
-                'day' => $this->days[array_rand($this->days)],
-                'time_slot' => $this->timeSlots[array_rand($this->timeSlots)],
-            ];
+            $sessions = max(1, (int) ceil($course->hours_per_week / 2));
+            for ($session = 1; $session <= $sessions; $session++) {
+                $slot = $this->timeSlots->random();
+                $venue = $this->venues->random();
+                $chromosome[] = [
+                    'course_code' => $course->course_code,
+                    'program_id' => $course->program_id,
+                    'year_of_study' => (int) $course->year_of_study,
+                    'instr_id' => $course->instr_id,
+                    'instructor_name' => $course->instructor?->instr_name,
+                    'room_id' => $venue->room_id,
+                    'slot_id' => $slot->slot_id,
+                    'day' => $slot->day_of_week,
+                    'time_slot' => substr($slot->start_time, 0, 5).'-'.substr($slot->end_time, 0, 5),
+                    'session' => $session,
+                ];
+            }
         }
+
         return $chromosome;
     }
 
-    /**
-     * Calculate fitness score (1.0 = zero conflicts)
-     */
-    private function calculateFitness($chromosome)
+    private function calculateFitness(array $chromosome): float
     {
         $conflicts = 0;
-        $count = count($chromosome);
-
-        for ($i = 0; $i < $count; $i++) {
-            for ($j = $i + 1; $j < $count; $j++) {
-                $geneA = $chromosome[$i];
-                $geneB = $chromosome[$j];
-
-                // Check for identical day and timeslot
-                if ($geneA['day'] === $geneB['day'] && $geneA['time_slot'] === $geneB['time_slot']) {
-                    // Hard Conflict 1: Venue double-booking
-                    if ($geneA['venue_id'] === $geneB['venue_id']) {
-                        $conflicts++;
-                    }
-                    // Hard Conflict 2: Instructor double-booking
-                    if ($geneA['instructor_id'] === $geneB['instructor_id']) {
-                        $conflicts++;
-                    }
+        foreach ($chromosome as $index => $geneA) {
+            foreach (array_slice($chromosome, $index + 1) as $geneB) {
+                if ($geneA['slot_id'] !== $geneB['slot_id']) {
+                    continue;
                 }
+                $conflicts += (int) ($geneA['room_id'] === $geneB['room_id']);
+                $conflicts += (int) ($geneA['instr_id'] === $geneB['instr_id']);
+                $conflicts += (int) ($geneA['program_id'] === $geneB['program_id'] && $geneA['year_of_study'] === $geneB['year_of_study']);
             }
 
-            // Hard Conflict 3: Venue Capacity check
-            $course = $this->courses->firstWhere('id', $geneA['course_id']);
-            $venue = $this->venues->firstWhere('id', $geneA['venue_id']);
-            if ($course && $venue && isset($course->students_count) && $venue->capacity < $course->students_count) {
-                $conflicts++;
+            $allowedSlots = $this->availability->get($geneA['instr_id']);
+            if ($allowedSlots && ! $allowedSlots->contains('slot_id', $geneA['slot_id'])) {
+                $conflicts += 2;
+            }
+            $venue = $this->venues->firstWhere('room_id', $geneA['room_id']);
+            $requiredCapacity = $this->groupSizes->get($geneA['program_id'].'-'.$geneA['year_of_study'], 0);
+            if ($venue && $requiredCapacity > $venue->capacity) {
+                $conflicts += 2;
             }
         }
 
-        // Fitness inversely proportional to total conflicts
         return 1 / (1 + $conflicts);
     }
 
-    /**
-     * Tournament selection strategy
-     */
-    private function tournamentSelection($population, $fitnesses, $k = 3)
+    private function tournamentSelection(array $population, array $fitnesses, int $size = 3): array
     {
         $best = null;
         $bestFitness = -1;
-
-        for ($i = 0; $i < $k; $i++) {
-            $randomIndex = rand(0, count($population) - 1);
-            if ($fitnesses[$randomIndex] > $bestFitness) {
-                $bestFitness = $fitnesses[$randomIndex];
-                $best = $population[$randomIndex];
+        for ($i = 0; $i < $size; $i++) {
+            $index = array_rand($population);
+            if ($fitnesses[$index] > $bestFitness) {
+                $best = $population[$index];
+                $bestFitness = $fitnesses[$index];
             }
         }
-
         return $best;
     }
 
-    /**
-     * Uniform crossover between two parents
-     */
-    private function crossover($parent1, $parent2)
+    private function crossover(array $first, array $second): array
     {
         $child = [];
-        for ($i = 0; $i < count($parent1); $i++) {
-            $child[] = (rand(0, 1) === 1) ? $parent1[$i] : $parent2[$i];
+        foreach ($first as $index => $gene) {
+            $child[] = random_int(0, 1) ? $gene : $second[$index];
         }
         return $child;
     }
 
-    /**
-     * Random mutation on chromosome genes
-     */
-    private function mutate($chromosome)
+    private function mutate(array $chromosome): array
     {
         foreach ($chromosome as &$gene) {
             if ((mt_rand() / mt_getrandmax()) < $this->mutationRate) {
-                $gene['venue_id'] = $this->venues->random()->id;
-                $gene['day'] = $this->days[array_rand($this->days)];
-                $gene['time_slot'] = $this->timeSlots[array_rand($this->timeSlots)];
+                $slot = $this->timeSlots->random();
+                $venue = $this->venues->random();
+                $gene['slot_id'] = $slot->slot_id;
+                $gene['day'] = $slot->day_of_week;
+                $gene['time_slot'] = substr($slot->start_time, 0, 5).'-'.substr($slot->end_time, 0, 5);
+                $gene['room_id'] = $venue->room_id;
             }
         }
         return $chromosome;
