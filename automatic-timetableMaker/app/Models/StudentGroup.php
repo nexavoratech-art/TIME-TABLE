@@ -13,9 +13,5 @@ class StudentGroup extends Model
     protected $primaryKey = 'group_id';
     public $timestamps = false;
 
-    protected $fillable = [
-        'group_name',
-        'student_count',
-        'program_id',
-    ];
+    protected $fillable = ['group_name', 'student_count', 'program_id', 'year_of_study'];
 }
