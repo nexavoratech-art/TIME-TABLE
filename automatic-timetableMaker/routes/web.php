@@ -89,6 +89,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/courses', [CourseController::class, 'store'])
         ->name('courses.store');
 
+    Route::put('/courses/{course}/assignment', [CourseController::class, 'updateAssignment'])
+        ->name('courses.assignment.update');
+
 
     // =========================
     // INSTRUCTORS
